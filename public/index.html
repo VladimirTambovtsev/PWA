@@ -36,7 +36,7 @@
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
         <!-- Title -->
-        <span class="mdl-layout-title">WVC</span>
+        <span class="mdl-layout-title">PWAGram</span>
         <!-- Add spacer, to align navigation to the right -->
         <div class="mdl-layout-spacer"></div>
         <!-- Navigation. We hide it in small screens. -->
@@ -52,7 +52,7 @@
       </div>
     </header>
     <div class="mdl-layout__drawer">
-      <span class="mdl-layout-title">WVC</span>
+      <span class="mdl-layout-title">PWAGram</span>
       <nav class="mdl-navigation">
         <a class="mdl-navigation__link" href="/">Feed</a>
         <a class="mdl-navigation__link" href="/help">Help</a>
@@ -65,14 +65,11 @@
     </div>
     <main class="mdl-layout__content mat-typography">
       <div id="create-post">
-        <video id="player" autoplay></video>
-        <canvas id="canvas" width="320px" height="240px"></canvas>
-        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="capture-btn">Capture
-        </button>
-        <div id="pick-image">
-          <h6>Pick an Image instead</h6>
-          <input type="file" accept="image/*" id="image-picker">
-        </div>
+        <div class="booth">
+          <video id="video" width="400" height="300" autoplay></video>
+          <a href="#" id="capture" class="booth-capture-button">Сфотографировать</a>
+          <canvas id="canvas" width="400" height="300"></canvas>
+      </div>
         <form>
           <div class="input-section mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
             <input class="mdl-textfield__input" type="text" id="title">
@@ -81,12 +78,6 @@
           <div class="input-section mdl-textfield mdl-js-textfield mdl-textfield--floating-label" id="manual-location">
             <input class="mdl-textfield__input" type="text" id="location">
             <label class="mdl-textfield__label" for="location" name="location">Location</label>
-          </div>
-          <div class="input-section">
-            <button class="mdl-button mdl-js-button mdl-button mdl-button--colored" type="button" id="location-btn">Get
-              Location
-            </button>
-            <div class="mdl-spinner mdl-js-spinner is-active" id="location-loader"></div>
           </div>
           <br>
           <div>
@@ -109,7 +100,7 @@
            alt="Explore the City"
            class="main-image">
       <div class="page-content">
-        <h5 class="text-center mdl-color-text--primary">Add Room</h5>
+        <h5 class="text-center mdl-color-text--primary">Share your Moments</h5>
         <div id="shared-moments"></div>
       </div>
       <div class="floating-button">
@@ -125,6 +116,34 @@
     </main>
   </div>
 </div>
+<script>
+
+    (function () {
+        var video = document.getElementById('video'),
+            canvas = document.getElementById('canvas'),
+            context = canvas.getContext('2d'),
+            photo = document.getElementById('photo'),
+            vendorUrl = window.URL || window.webkitURL;
+        navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+        navigator.getMedia({
+            video: true,
+            audio: false
+        }, function (stream) {
+            video.src = vendorUrl.createObjectURL(stream);
+            video.play();
+        }, function (error) {
+            alert('Ошибка! Что-то пошло не так, попробуйте позже.');
+        });
+        document.getElementById('capture').addEventListener('click', function () {
+            context.drawImage(video, 0, 0, 400, 300);
+            photo.setAttribute('src', canvas.toDataURL('image/png'));
+            console.log(photo);
+        });
+    })();
+
+
+</script>
+
 <script defer src="/src/js/material.min.js"></script>
 <script src="/src/js/promise.js"></script>
 <script src="/src/js/fetch.js"></script>

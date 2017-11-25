@@ -1,15 +1,14 @@
 importScripts('/src/js/idb.js');
 importScripts('/src/js/utility.js');
 
-var CACHE_STATIC_NAME = 'static-v27';
-var CACHE_DYNAMIC_NAME = 'dynamic-v3';
+var CACHE_STATIC_NAME = 'static-v23';
+var CACHE_DYNAMIC_NAME = 'dynamic-v2';
 var STATIC_FILES = [
   '/',
   '/index.html',
   '/offline.html',
   '/src/js/app.js',
   '/src/js/feed.js',
-  '/src/js/utility.js',
   '/src/js/idb.js',
   '/src/js/promise.js',
   '/src/js/fetch.js',
@@ -21,6 +20,19 @@ var STATIC_FILES = [
   'https://fonts.googleapis.com/icon?family=Material+Icons',
   'https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css'
 ];
+
+// function trimCache(cacheName, maxItems) {
+//   caches.open(cacheName)
+//     .then(function (cache) {
+//       return cache.keys()
+//         .then(function (keys) {
+//           if (keys.length > maxItems) {
+//             cache.delete(keys[0])
+//               .then(trimCache(cacheName, maxItems));
+//           }
+//         });
+//     })
+// }
 
 self.addEventListener('install', function (event) {
   console.log('[Service Worker] Installing Service Worker ...', event);
@@ -177,18 +189,18 @@ self.addEventListener('sync', function(event) {
       readAllData('sync-posts')
         .then(function(data) {
           for (var dt of data) {
-            var postData = new FormData();
-            postData.append('id', dt.id);
-            postData.append('title', dt.title);
-            postData.append('location', dt.location);
-            postData.append('file', dt.picture, dt.id + '.png');
-             console.log('[New] id: ', dt.id);
-             console.log(dt.title);
-             console.log(dt.location);
-             console.log(dt.picture);
             fetch('https://us-central1-pwapplication-95a6f.cloudfunctions.net/storePostData', {
               method: 'POST',
-              body: postData 
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({
+                id: dt.id,
+                title: dt.title,
+                location: dt.location,
+                image: 'https://1.bp.blogspot.com/-YIfQT6q8ZM4/Vzyq5z1B8HI/AAAAAAAAAAc/UmWSSMLKtKgtH7CACElUp12zXkrPK5UoACLcB/s1600/image00.png'
+              })
             })
               .then(function(res) {
                 console.log('Sent data', res);
@@ -196,7 +208,8 @@ self.addEventListener('sync', function(event) {
                   res.json()
                     .then(function(resData) {
                       deleteItemFromData('sync-posts', resData.id);
-                    });
+                    })
+                   
                 }
               })
               .catch(function(err) {
@@ -215,39 +228,38 @@ self.addEventListener('notificationclick', function(event) {
 
   console.log(notification);
 
-  if (action === 'confirm') {
-    console.log('Confirm was chosen');
-    notification.close();
+  if (action == 'confirm') {
+    console.log('User confirmed notification');
   } else {
-    console.log(action);
-    event.waitUntil(
-      clients.matchAll()
-        .then(function(clis) {
-          var client = clis.find(function(c) {
-            return c.visibilityState === 'visible';
-          });
+     console.log('User cancelled notification');
+     event.waitUntil(
+       clients.matchAll()
+          .then(function(clis) {
+            var client = clis.find(function(c) {
+              return c.visibilityState = 'visible';
+            });
 
-          if (client !== undefined) {
-            client.navigate(notification.data.url);
-            client.focus();
-          } else {
-            clients.openWindow(notification.data.url);
-          }
-          notification.close();
-        })
-    );
+            if (client !== undefined) {
+              client.navigate(notification.data.url);
+              client.focus();
+            } else {
+              clients.openWindow(notification.data.url);
+            }
+            notification.close();
+          })
+     );
   }
 });
 
-self.addEventListener('notificationclose', function(event) {
-  console.log('Notification was closed', event);
+
+self.addEventListener('notificationclose', function(event) { // works on Android 
+  console.log('Notification was close');
 });
 
 self.addEventListener('push', function(event) {
   console.log('Push Notification received', event);
 
-  var data = {title: 'New!', content: 'Something new happened!', openUrl: '/'};
-
+  var data = {title: 'New!', content: 'Sth new happened', openURL: '/' };
   if (event.data) {
     data = JSON.parse(event.data.text());
   }
@@ -257,29 +269,15 @@ self.addEventListener('push', function(event) {
     icon: '/src/images/icons/app-icon-96x96.png',
     badge: '/src/images/icons/app-icon-96x96.png',
     data: {
-      url: data.openUrl
+      url: data.openURL
     }
   };
 
   event.waitUntil(
     self.registration.showNotification(data.title, options)
   );
+
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
