@@ -1,5 +1,5 @@
 # PWA
 
-To start: 
+Start: 
 
 'npm start'
