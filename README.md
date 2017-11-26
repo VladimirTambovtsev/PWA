@@ -1,5 +1,3 @@
-# PWA
+# Progressive Web Application Cart 
 
-Start: 
-
-'npm start'
+Fast Cart Web Application created on GDG Moscow 🚀
