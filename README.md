@@ -3,7 +3,7 @@
 Fast Cart Web Application created on GDG Moscow 🚀
 
 
-# Start
+### Start
 
 * `npm install`
 * `npm start`
